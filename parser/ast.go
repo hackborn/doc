@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"cmp"
 	"fmt"
 	"io"
 	"strconv"
@@ -75,7 +76,7 @@ func (n *binaryNode) Format(args FormatArgs) error {
 	args.Writer.WriteString(keyword)
 	args.Writer.WriteString(strings.String(rhW))
 
-	return errors.First(strings.StringErr(lhW), strings.StringErr(rhW))
+	return cmp.Or(strings.StringErr(lhW), strings.StringErr(rhW))
 }
 
 func (n *binaryNode) Fields(args *FieldArgs) error {
@@ -87,7 +88,7 @@ func (n *binaryNode) Fields(args *FieldArgs) error {
 	args.Ctx = n.lhsContext(prevctx)
 	err := n.Lhs.Fields(args)
 	args.Ctx = n.rhsContext(prevctx)
-	return errors.First(err, n.Rhs.Fields(args))
+	return cmp.Or(err, n.Rhs.Fields(args))
 }
 
 func (n *binaryNode) stateErr() error {
@@ -199,7 +200,7 @@ func NewAst(tokens ...any) (AstNode, error) {
 	// Deal with not having any binding power or doing any actual
 	// processing by going through multiple levels.
 	err := newAstBinary(AssignKeyword, tokens)
-	err = errors.First(err, newAstBinary("", tokens))
+	err = cmp.Or(err, newAstBinary("", tokens))
 	if err != nil {
 		return nil, err
 	}
