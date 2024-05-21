@@ -38,7 +38,13 @@ func (r GetOneResponse[T]) With(opt any) GetOneResponse[T] {
 // SetRequest provides parameters to a Set operation.
 type SetRequest[T any] struct {
 	Optional
+
+	// The item to set.
 	Item T
+
+	// Filter is used to determine which fields will be set.
+	// An empty filter will set all fields.
+	Filter Filter
 }
 
 func (r SetRequest[T]) With(opt any) SetRequest[T] {
@@ -48,6 +54,10 @@ func (r SetRequest[T]) With(opt any) SetRequest[T] {
 
 func (r SetRequest[T]) ItemAny() any {
 	return &r.Item
+}
+
+func (r SetRequest[T]) GetFilter() Filter {
+	return r.Filter
 }
 
 // SetResponse provides output from a Set operation.
@@ -74,6 +84,7 @@ func (r DeleteRequest[T]) ItemAny() any {
 // SetRequestAny provides access to the item of a Set request.
 type SetRequestAny interface {
 	ItemAny() any
+	GetFilter() Filter
 }
 
 // DeleteRequestAny provides access to the item of a Delete request.

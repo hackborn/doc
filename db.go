@@ -2,6 +2,7 @@ package doc
 
 import (
 	"fmt"
+
 	"github.com/hackborn/doc/parser"
 )
 
@@ -34,7 +35,7 @@ func Open(driverName, dataSourceName string) (*DB, error) {
 	driveri, ok := drivers[driverName]
 	driversMu.RUnlock()
 	if !ok {
-		return nil, fmt.Errorf("doc: unknown driver %q (forgotten import?)", driverName)
+		return nil, fmt.Errorf("doc: unknown driver %v (forgotten import, or select from %v)", driverName, Drivers())
 	}
 	driver, err := driveri.Open(dataSourceName)
 	if err != nil {
