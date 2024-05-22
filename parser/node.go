@@ -78,11 +78,11 @@ func (n *nodeT) asAst() (AstNode, error) {
 		if len(n.Children) != 0 {
 			return nil, newParseError("int has wrong number of children: " + strconv.Itoa(len(n.Children)))
 		}
-		i, err := strconv.ParseInt(n.Text, 10, 32)
+		i64, err := strconv.ParseInt(n.Text, 10, 64)
 		if err != nil {
 			return nil, err
 		}
-		return &valueNode{Value: int(i)}, nil
+		return &valueNode{Value: i64}, nil
 	case openToken:
 		child, err := n.makeUnary()
 		if err != nil {
