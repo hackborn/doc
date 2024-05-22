@@ -15,9 +15,6 @@ type Expr interface {
 
 	// Format answers the expression as a formatted string.
 	Format() (string, error)
-
-	// Fields answers a list of the field names in this expression.
-	Fields() []string
 }
 
 // NewExpr answers a new compiled expression based on the supplied tokens.
@@ -60,10 +57,6 @@ func (e *compiledExpr) Format() (string, error) {
 	return e.formatted, nil
 }
 
-func (e *compiledExpr) Fields() []string {
-	return e.fields
-}
-
 // rawExpression contains a raw expression term and the information
 // necessary to compile it.
 type rawExpression struct {
@@ -97,12 +90,4 @@ func (e *rawExpression) Format() (string, error) {
 		return "", nil
 	}
 	return expr.Format()
-}
-
-func (e *rawExpression) Fields() []string {
-	expr, _ := e.Compile()
-	if expr == nil {
-		return nil
-	}
-	return expr.Fields()
 }

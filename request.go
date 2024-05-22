@@ -3,9 +3,10 @@ package doc
 // GetRequest provides parameters to a Get operation.
 type GetRequest struct {
 	Optional
-	Condition Expr // Matching condition to accept a record.
-	Fields    Expr // List of fields to return.
-	Limit     int  // Limit to the number of items
+	Condition Expr    // Matching condition to accept a record.
+	Fields    *Fields // Limit response to these specific fields.
+	Limit     int     // Limit to the number of items
+	Flags     GetFlags
 }
 
 func (r GetRequest) With(opt any) GetRequest {
