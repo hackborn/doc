@@ -102,14 +102,17 @@ func (n *binaryNode) Extract(_fn any) error {
 	}
 	switch n.Keyword {
 	case AndKeyword, OrKeyword, ListKeyword:
-		fn.BinaryConjunction(n.Keyword)
-		err := cmp.Or(n.Lhs.Extract(_fn), n.Rhs.Extract(_fn))
+		err := fn.BinaryConjunction(n.Keyword)
+		err = cmp.Or(err, n.Lhs.Extract(_fn), n.Rhs.Extract(_fn))
 		if err != nil {
 			return err
 		}
 	case AssignKeyword:
 		if lhs, rhs, err := n.valueStrings(); err == nil {
-			fn.BinaryAssignment(lhs, rhs)
+			err := fn.BinaryAssignment(lhs, rhs)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
