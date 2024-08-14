@@ -1,7 +1,7 @@
 package doc
 
 import (
-	_ "fmt"
+	"fmt"
 	"strings"
 
 	"github.com/hackborn/doc/parser"
@@ -15,6 +15,10 @@ type Expr interface {
 
 	// Format answers the expression as a formatted string.
 	Format() (string, error)
+
+	// Extract allows clients to pull structured information from the Expr.
+	// The argument should implement one or more of the Extract* interfaces.
+	Extract(any) error
 }
 
 // NewExpr answers a new compiled expression based on the supplied tokens.
@@ -57,6 +61,13 @@ func (e *compiledExpr) Format() (string, error) {
 	return e.formatted, nil
 }
 
+func (e *compiledExpr) Extract(fn any) error {
+	if e.ast == nil {
+		return fmt.Errorf("No AST")
+	}
+	return e.ast.Extract(fn)
+}
+
 // rawExpression contains a raw expression term and the information
 // necessary to compile it.
 type rawExpression struct {
@@ -90,4 +101,12 @@ func (e *rawExpression) Format() (string, error) {
 		return "", nil
 	}
 	return expr.Format()
+}
+
+func (e *rawExpression) Extract(fn any) error {
+	expr, err := e.Compile()
+	if expr == nil || err != nil {
+		return err
+	}
+	return expr.Extract(fn)
 }

@@ -17,6 +17,7 @@ import (
 type AstNode interface {
 	Format(args FormatArgs) error
 	Fields(args *FieldArgs) error
+	Extract(any) error
 }
 
 type FormatArgs struct {
@@ -91,6 +92,29 @@ func (n *binaryNode) Fields(args *FieldArgs) error {
 	return cmp.Or(err, n.Rhs.Fields(args))
 }
 
+func (n *binaryNode) Extract(_fn any) error {
+	fn, ok := _fn.(ExtractBinary)
+	if !ok {
+		return nil
+	}
+	if err := n.stateErr(); err != nil {
+		return err
+	}
+	switch n.Keyword {
+	case AndKeyword, OrKeyword, ListKeyword:
+		fn.BinaryConjunction(n.Keyword)
+		err := cmp.Or(n.Lhs.Extract(_fn), n.Rhs.Extract(_fn))
+		if err != nil {
+			return err
+		}
+	case AssignKeyword:
+		if lhs, rhs, err := n.valueStrings(); err == nil {
+			fn.BinaryAssignment(lhs, rhs)
+		}
+	}
+	return nil
+}
+
 func (n *binaryNode) stateErr() error {
 	if n.Lhs == nil || n.Rhs == nil {
 		return newMalformedError("binary node")
@@ -112,6 +136,20 @@ func (n *binaryNode) rhsContext(ctx FormatContext) FormatContext {
 	default:
 		return NoFormatContext
 	}
+}
+
+func (n *binaryNode) valueStrings() (string, string, error) {
+	lhn, ok1 := n.Lhs.(*valueNode)
+	rhn, ok2 := n.Rhs.(*valueNode)
+	if !ok1 || !ok2 {
+		return "", "", fmt.Errorf("Missing value node")
+	}
+	lhs, ok1 := lhn.Value.(string)
+	rhs, ok2 := rhn.Value.(string)
+	if !ok1 || !ok2 {
+		return "", "", fmt.Errorf("Missing value node string")
+	}
+	return lhs, rhs, nil
 }
 
 // ------------------------------------------------------------
@@ -148,6 +186,10 @@ func (n *valueNode) Fields(args *FieldArgs) error {
 	return nil
 }
 
+func (n *valueNode) Extract(any) error {
+	return nil
+}
+
 // ------------------------------------------------------------
 // UNARY-NODE
 
@@ -179,6 +221,10 @@ func (n *unaryNode) Fields(args *FieldArgs) error {
 	}
 
 	return n.Child.Fields(args)
+}
+
+func (n *unaryNode) Extract(any) error {
+	return nil
 }
 
 func (n *unaryNode) stateErr() error {
