@@ -29,6 +29,10 @@ type Driver interface {
 	Delete(req DeleteRequestAny, a Allocator) (*Optional, error)
 }
 
+type PrivateDriver interface {
+	Private(any) error
+}
+
 func Register(name string, driver Driver) {
 	driversMu.Lock()
 	defer driversMu.Unlock()

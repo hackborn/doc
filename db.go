@@ -24,6 +24,15 @@ func (d *DB) Close() error {
 	return nil
 }
 
+// Private sends a private data to the driver. This is
+// a debug utility; the specification is entirely driver dependent.
+func (d *DB) Private(a any) error {
+	if pd, ok := d.driver.(PrivateDriver); ok {
+		return pd.Private(a)
+	}
+	return fmt.Errorf("Driver does not implement PrivateDriver")
+}
+
 // Answer a new expression, using the optional validator and
 // the driver's formatting.
 func (d *DB) Expr(expr string, v Validator) Expr {
