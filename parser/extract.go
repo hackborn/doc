@@ -4,5 +4,5 @@ package parser
 // Experimental.
 type ExtractBinary interface {
 	BinaryConjunction(keyword string) error
-	BinaryAssignment(lhs, rhs string) error
+	BinaryAssignment(lhs string, rhs any) error
 }

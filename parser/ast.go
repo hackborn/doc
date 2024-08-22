@@ -100,6 +100,7 @@ func (n *binaryNode) Extract(_fn any) error {
 	if err := n.stateErr(); err != nil {
 		return err
 	}
+
 	switch n.Keyword {
 	case AndKeyword, OrKeyword, ListKeyword:
 		err := fn.BinaryConjunction(n.Keyword)
@@ -108,7 +109,7 @@ func (n *binaryNode) Extract(_fn any) error {
 			return err
 		}
 	case AssignKeyword:
-		if lhs, rhs, err := n.valueStrings(); err == nil {
+		if lhs, rhs, err := n.basicValues(); err == nil {
 			err := fn.BinaryAssignment(lhs, rhs)
 			if err != nil {
 				return err
@@ -141,18 +142,17 @@ func (n *binaryNode) rhsContext(ctx FormatContext) FormatContext {
 	}
 }
 
-func (n *binaryNode) valueStrings() (string, string, error) {
+func (n *binaryNode) basicValues() (string, any, error) {
 	lhn, ok1 := n.Lhs.(*valueNode)
 	rhn, ok2 := n.Rhs.(*valueNode)
 	if !ok1 || !ok2 {
 		return "", "", fmt.Errorf("Missing value node")
 	}
 	lhs, ok1 := lhn.Value.(string)
-	rhs, ok2 := rhn.Value.(string)
-	if !ok1 || !ok2 {
+	if !ok1 {
 		return "", "", fmt.Errorf("Missing value node string")
 	}
-	return lhs, rhs, nil
+	return lhs, rhn.Value, nil
 }
 
 // ------------------------------------------------------------
