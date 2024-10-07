@@ -11,6 +11,7 @@ type Allocator interface {
 	TypeName() string
 }
 
+// trackingAllocator keeps a slice of all items it allocates.
 type trackingAllocator[T any] struct {
 	All []*T
 }

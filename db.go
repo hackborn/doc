@@ -115,3 +115,14 @@ func Delete[T any](d *DB, req DeleteRequest[T]) (DeleteResponse, error) {
 	}
 	return resp, err
 }
+
+// Close safely closes the DB.
+// Does this function seem ridiculous? It is. But there is SO MUCH
+// error handling in Go, I'm constantly experimenting with little ways
+// to tame it.
+func Close(d *DB) error {
+	if d != nil {
+		return d.Close()
+	}
+	return nil
+}
